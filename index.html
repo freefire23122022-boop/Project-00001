@@ -1,0 +1,286 @@
+
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Love Adventure ❤️</title>
+<style>
+*{box-sizing:border-box}
+body{
+ margin:0;background:#170e2d;color:white;
+ font-family:Arial,"Noto Sans Bengali",sans-serif;
+ text-align:center;user-select:none
+}
+#app{max-width:850px;margin:auto;padding:12px}
+h1{color:#ff8ac4;margin:12px 0}
+p{line-height:1.7}
+button{
+ border:0;border-radius:14px;padding:13px 23px;
+ background:#ff4d91;color:white;font-weight:bold;
+ font-size:17px;margin:7px;cursor:pointer
+}
+button:active{transform:scale(.96)}
+#scene{
+ position:relative;width:100%;overflow:hidden;
+ border:3px solid #ff91c9;border-radius:15px;
+ background:#a6e7ff
+}
+canvas{display:block;width:100%;height:auto;touch-action:manipulation}
+#home,#message{padding:15px}
+#message{display:none}
+#game{display:none}
+.small{color:#ffd8ec;font-size:14px}
+.heart{font-size:58px;animation:pulse 1s infinite alternate}
+@keyframes pulse{to{transform:scale(1.12)}}
+#gfPhoto{
+ max-width:180px;max-height:220px;object-fit:cover;
+ border-radius:16px;border:3px solid #ff8ac4;display:none;
+ margin:12px auto
+}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="home">
+    <div class="heart">❤️</div>
+    <h1>Love Adventure</h1>
+    <p>চার লেভেল কমপ্লিট করে নিজের GF কে বাঁচিয়ে নিন</p>
+    <p class="small">বাধা এড়িয়ে এগিয়ে যাও। লাফ দিতে স্ক্রিনে ট্যাপ করো!</p>
+    <button onclick="startGame()">▶ Start Game</button>
+  </div>
+
+  <div id="game">
+    <h2 id="levelTitle">Level 1</h2>
+    <p id="progress">বাধা: 0 / 10</p>
+    <div id="scene"><canvas id="canvas" width="800" height="400"></canvas></div>
+    <p class="small">📱 লাফ দিতে গেমের স্ক্রিনে ট্যাপ করো</p>
+    <button onclick="jump()">⬆ লাফ দাও</button>
+  </div>
+
+  <div id="message">
+    <div class="heart" id="msgHeart">💗</div>
+    <h1 id="msgTitle"></h1>
+    <p id="msgText"></p>
+    <img id="gfPhoto" src="images/gf.png" alt="আমার প্রিয় মানুষ">
+    <div id="endingNotes"></div>
+    <button id="nextButton" onclick="nextLevel()">Next ➜</button>
+    <button onclick="restartGame()">↻ আবার খেলুন</button>
+  </div>
+</div>
+
+<script>
+const canvas=document.getElementById("canvas");
+const ctx=canvas.getContext("2d");
+
+const levels=[
+ {count:10,note:"জান আমাকে বাঁচাও"},
+ {count:15,note:"জান তুমি পারবে"},
+ {count:20,note:"জান একটু তাড়াতাড়ি আমি পারছি না"},
+ {count:25,note:"জান আসো আমার কাছে"}
+];
+
+let level=0,passed=0,obstacles=[],running=false;
+let frame=0,playerY=292,velocity=0,grounded=true;
+let gameOver=false,raf=0;
+const groundY=330;
+
+function startGame(){
+ document.getElementById("home").style.display="none";
+ document.getElementById("message").style.display="none";
+ document.getElementById("game").style.display="block";
+ level=0;
+ beginLevel();
+}
+
+function beginLevel(){
+ cancelAnimationFrame(raf);
+ passed=0;frame=0;velocity=0;playerY=292;
+ obstacles=[];running=true;gameOver=false;
+ document.getElementById("game").style.display="block";
+ document.getElementById("message").style.display="none";
+ document.getElementById("levelTitle").textContent="Level "+(level+1);
+ updateProgress();
+ raf=requestAnimationFrame(loop);
+}
+
+function updateProgress(){
+ document.getElementById("progress").textContent=
+ "বাধা: "+passed+" / "+levels[level].count;
+}
+
+function jump(){
+ if(!running)return;
+ if(grounded){
+  velocity=-14;grounded=false;
+ }
+}
+canvas.addEventListener("pointerdown",jump);
+document.addEventListener("keydown",e=>{
+ if(e.code==="Space"||e.code==="ArrowUp"){
+  e.preventDefault();jump();
+ }
+});
+
+function drawBackground(){
+ let sky=ctx.createLinearGradient(0,0,0,400);
+ sky.addColorStop(0,"#80d9ff");sky.addColorStop(1,"#f4d5ff");
+ ctx.fillStyle=sky;ctx.fillRect(0,0,800,400);
+
+ // clouds
+ ctx.fillStyle="rgba(255,255,255,.9)";
+ [[100,70],[350,100],[650,60]].forEach(([x,y])=>{
+  ctx.beginPath();ctx.arc(x,y,23,0,Math.PI*2);
+  ctx.arc(x+25,y-8,29,0,Math.PI*2);
+  ctx.arc(x+52,y,21,0,Math.PI*2);ctx.fill();
+ });
+ // distant hills
+ ctx.fillStyle="#83d9a4";
+ ctx.beginPath();ctx.moveTo(0,280);
+ for(let x=0;x<=800;x+=80)ctx.lineTo(x,245+Math.sin(x/90)*22);
+ ctx.lineTo(800,400);ctx.lineTo(0,400);ctx.fill();
+
+ ctx.fillStyle="#58bb76";ctx.fillRect(0,groundY,800,70);
+ ctx.fillStyle="#398a57";ctx.fillRect(0,groundY,800,8);
+ for(let x=0;x<800;x+=48){
+  ctx.fillStyle="#b3f49b";
+  ctx.fillRect((x-frame*5%48+48)%800,groundY+25,22,4);
+ }
+}
+
+function drawBoy(x,y){
+ // shadow
+ ctx.fillStyle="rgba(0,0,0,.18)";
+ ctx.beginPath();ctx.ellipse(x+25,groundY+2,25,6,0,0,Math.PI*2);ctx.fill();
+
+ // legs
+ ctx.strokeStyle="#27345f";ctx.lineWidth=10;ctx.lineCap="round";
+ ctx.beginPath();ctx.moveTo(x+20,y+53);ctx.lineTo(x+12,y+70);
+ ctx.moveTo(x+35,y+53);ctx.lineTo(x+43,y+69);ctx.stroke();
+ // shoes
+ ctx.strokeStyle="#ff4d91";ctx.lineWidth=8;
+ ctx.beginPath();ctx.moveTo(x+8,y+72);ctx.lineTo(x+19,y+72);
+ ctx.moveTo(x+39,y+71);ctx.lineTo(x+50,y+71);ctx.stroke();
+ // arms
+ ctx.strokeStyle="#f2b18c";ctx.lineWidth=8;
+ ctx.beginPath();ctx.moveTo(x+12,y+27);ctx.lineTo(x+1,y+43);
+ ctx.moveTo(x+40,y+27);ctx.lineTo(x+51,y+40);ctx.stroke();
+ // body
+ ctx.fillStyle="#5946bd";ctx.fillRect(x+12,y+22,29,34);
+ // neck
+ ctx.fillStyle="#f2b18c";ctx.fillRect(x+23,y+15,10,10);
+ // hair
+ ctx.fillStyle="#342039";ctx.beginPath();
+ ctx.arc(x+27,y+12,17,Math.PI,Math.PI*2);
+ ctx.lineTo(x+44,y+17);ctx.lineTo(x+11,y+17);ctx.fill();
+ // face
+ ctx.fillStyle="#f2b18c";ctx.beginPath();
+ ctx.arc(x+28,y+15,13,0,Math.PI*2);ctx.fill();
+ ctx.fillStyle="#342039";ctx.fillRect(x+19,y+12,4,4);
+ ctx.fillRect(x+31,y+12,4,4);
+ ctx.strokeStyle="#a3445c";ctx.lineWidth=2;
+ ctx.beginPath();ctx.moveTo(x+23,y+21);ctx.quadraticCurveTo(x+28,y+25,x+33,y+21);ctx.stroke();
+ // hair fringe
+ ctx.fillStyle="#342039";ctx.beginPath();
+ ctx.moveTo(x+15,y+12);ctx.lineTo(x+17,y+2);ctx.lineTo(x+28,y+6);
+ ctx.lineTo(x+38,y+2);ctx.lineTo(x+42,y+13);ctx.fill();
+}
+
+function drawObstacle(o){
+ ctx.fillStyle="#6c3b32";
+ ctx.fillRect(o.x,o.y,o.w,o.h);
+ ctx.fillStyle="#b76a50";
+ ctx.fillRect(o.x+5,o.y+6,6,o.h-8);
+ ctx.fillStyle="#ef9874";
+ ctx.fillRect(o.x,o.y,o.w,6);
+}
+
+function loop(){
+ if(!running)return;
+ frame++;
+ drawBackground();
+
+ // character physics
+ velocity+=0.65;playerY+=velocity;
+ if(playerY>=292){playerY=292;velocity=0;grounded=true}
+ drawBoy(100,playerY);
+
+ // create obstacles at intervals
+ const spawnEvery=Math.max(64,105-level*8);
+ if(frame%spawnEvery===0){
+  obstacles.push({x:820,y:groundY-42,w:27,h:42,done:false});
+ }
+ const speed=4+level*.55;
+ for(let o of obstacles){
+  o.x-=speed;
+  drawObstacle(o);
+  if(!o.done&&o.x+o.w<100){
+   o.done=true;passed++;updateProgress();
+   if(passed>=levels[level].count){
+    finishLevel();return;
+   }
+  }
+  // collision check
+  if(o.x<143&&o.x+o.w>100&&playerY+72>o.y+5){
+   // only collision when player hasn't jumped high enough
+   if(playerY>o.y-65){
+    finishGame();return;
+   }
+  }
+ }
+ obstacles=obstacles.filter(o=>o.x>-50);
+
+ // progress banner
+ ctx.fillStyle="#40265f";ctx.fillRect(12,12,210,38);
+ ctx.fillStyle="white";ctx.font="bold 18px Arial";
+ ctx.fillText("❤️ LOVE RUN",24,37);
+
+ raf=requestAnimationFrame(loop);
+}
+
+function finishLevel(){
+ running=false;cancelAnimationFrame(raf);
+ document.getElementById("game").style.display="none";
+ document.getElementById("message").style.display="block";
+ document.getElementById("msgTitle").textContent=
+  level===3?"তুমি পেরেছো, ভালোবাসা! ❤️":"Level "+(level+1)+" Completed!";
+ document.getElementById("msgText").textContent=levels[level].note;
+ document.getElementById("msgHeart").textContent="💖";
+ const photo=document.getElementById("gfPhoto");
+ photo.style.display="none";
+ photo.onerror=()=>{photo.style.display="none"};
+ if(level===3){
+  photo.src="images/gf.png";
+  photo.style.display="block";
+  document.getElementById("nextButton").textContent="❤️ ভালোবাসার শেষ পাতা";
+ }else{
+  document.getElementById("nextButton").textContent="Next Level ➜";
+ }
+ document.getElementById("endingNotes").innerHTML=
+  level===3?
+  "<p>জান, সব বাধা পেরিয়ে তোমার কাছে এলাম। ❤️</p>"+
+  "<p>তোমার হাসিটাই আমার সবচেয়ে বড় পুরস্কার। 💕</p>"+
+  "<p>তুমি পাশে থাকলে সব পথ পেরিয়ে যাব। 🌹</p>"+
+  "<p>আমার গল্পের সবচেয়ে সুন্দর মানুষটা তুমি। 💗</p>":"";
+}
+
+function finishGame(){
+ running=false;cancelAnimationFrame(raf);
+ document.getElementById("game").style.display="none";
+ document.getElementById("message").style.display="block";
+ document.getElementById("msgTitle").textContent="ওহ না! 😅";
+ document.getElementById("msgText").textContent="বাধায় ধাক্কা লেগেছে। আবার চেষ্টা করো, তুমি পারবে!";
+ document.getElementById("msgHeart").textContent="💪";
+ document.getElementById("gfPhoto").style.display="none";
+ document.getElementById("endingNotes").innerHTML="";
+ document.getElementById("nextButton").textContent="আবার চেষ্টা করো";
+}
+
+function nextLevel(){
+ if(level>=3){restartGame();return}
+ level++;beginLevel();
+}
+function restartGame(){startGame()}
+</script>
+</body>
+</html>
