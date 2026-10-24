@@ -3,84 +3,91 @@
 <html lang="bn">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Love Adventure ❤️</title>
-
 <style>
 *{box-sizing:border-box}
+:root{color-scheme:dark}
 body{
- margin:0;background:#170c2c;color:white;
- font-family:Arial,sans-serif;text-align:center;
+ margin:0;background:#160d29;color:#fff;
+ font-family:Arial,"Noto Sans Bengali",sans-serif;
+ text-align:center
 }
-#app{max-width:850px;margin:auto;padding:14px}
-h1{color:#ff80bb}
-p{line-height:1.7}
+#app{width:min(100%,850px);margin:auto;padding:14px}
+h1{color:#ff8fc7;line-height:1.45}
+p{line-height:1.8}
 button{
- border:0;border-radius:13px;padding:13px 22px;
- margin:7px;background:#ff408d;color:white;
+ border:0;border-radius:14px;padding:13px 22px;
+ margin:7px;background:#ff438f;color:#fff;
  font-size:17px;font-weight:bold;cursor:pointer;
+ box-shadow:0 5px 0 #a52662
 }
-button:active{transform:scale(.96)}
-#home,#result{padding:18px 8px}
+button:active{transform:translateY(3px);box-shadow:none}
+.panel{padding:14px 6px}
+#homePhoto{
+ width:100%;max-width:440px;max-height:390px;
+ object-fit:contain;border-radius:20px;
+ border:3px solid #ff8fc7;box-shadow:0 0 25px #ff438f55
+}
 #game,#result{display:none}
-.heart{font-size:60px}
-#stage{border:3px solid #ff8bc4;border-radius:15px;overflow:hidden}
+#stage{border:3px solid #ff8fc7;border-radius:15px;overflow:hidden}
 canvas{display:block;width:100%;height:auto;touch-action:manipulation}
-.small{font-size:14px;color:#ffd6e9}
-#gfPhoto{
- display:none;width:min(70%,250px);max-height:280px;
- object-fit:contain;border:3px solid #ff8bc4;
- border-radius:15px;margin:15px auto;
+.small{font-size:14px;color:#f8cfe5}
+#resultPhoto{
+ display:none;width:min(88%,400px);max-height:430px;
+ object-fit:contain;border-radius:20px;
+ border:3px solid #ff8fc7;margin:15px auto;
+ box-shadow:0 0 25px #ff438f55
 }
+.heart{font-size:48px;animation:pulse 1s infinite alternate}
+@keyframes pulse{to{transform:scale(1.13)}}
+#notes p{margin:7px 0;color:#ffd0e8}
 </style>
 </head>
-
 <body>
 <div id="app">
 
- <section id="home">
-  <div class="heart">❤️</div>
-  <h1>Love Adventure</h1>
-  <p>চার লেভেল কমপ্লিট করে নিজের GF কে বাঁচিয়ে নিন</p>
-  <p class="small">বাধা এড়িয়ে প্রিয় মানুষটির কাছে পৌঁছে যাও!</p>
-  <button onclick="startGame()">▶ গেম শুরু করো</button>
- </section>
+<section id="home" class="panel">
+ <div class="heart">❤️</div>
+ <h1>LOVE ADVENTURE</h1>
+ <img id="homePhoto" src="download.jpeg" alt="আমার ভালোবাসা">
+ <h1 style="font-size:clamp(28px,7vw,45px)">
+  চারটি লেভেল কমপ্লিট করে নিজের গার্লফ্রেন্ডকে বাঁচাও ❤️
+ </h1>
+ <p>বাধা পেরিয়ে পৌঁছে যাও তোমার ভালোবাসার মানুষের কাছে।</p>
+ <button onclick="startGame()">▶ START GAME</button>
+ <p class="small">৪টি লেভেল • ৭০টি বাধা • অসীম ভালোবাসা 💖</p>
+</section>
 
- <section id="game">
-  <h2 id="levelName">Level 1</h2>
-  <p id="score">বাধা পার হয়েছে: 0 / 10</p>
-  <div id="stage">
-   <canvas id="canvas" width="800" height="400"></canvas>
-  </div>
-  <p class="small">লাফ দিতে স্ক্রিনে ট্যাপ করো অথবা নিচের বোতাম চাপো।</p>
-  <button onclick="jump()">⬆ লাফ দাও</button>
- </section>
+<section id="game" class="panel">
+ <h2 id="levelName">LEVEL 1</h2>
+ <p id="score">বাধা: 0 / 10</p>
+ <div id="stage">
+  <canvas id="canvas" width="800" height="400"></canvas>
+ </div>
+ <p class="small">স্ক্রিনে ট্যাপ করে অথবা লাফের বোতাম চেপে বাধা পার হও।</p>
+ <button onclick="jump()">⬆ লাফ দাও</button>
+ <button onclick="pauseGame()" id="pauseBtn">⏸ বিরতি</button>
+</section>
 
- <section id="result">
-  <div class="heart" id="heart">💖</div>
-  <h1 id="resultTitle"></h1>
-  <p id="resultText"></p>
-  <img id="gfPhoto" alt="আমার প্রিয় মানুষ">
-  <div id="loveNotes"></div>
-  <button id="nextBtn" onclick="nextLevel()">পরের লেভেল ➜</button>
-  <button onclick="startGame()">↻ আবার খেলো</button>
- </section>
+<section id="result" class="panel">
+ <div class="heart" id="resultHeart">💖</div>
+ <h1 id="resultTitle"></h1>
+ <img id="resultPhoto" alt="আমার প্রিয় মানুষ">
+ <p id="resultText"></p>
+ <div id="notes"></div>
+ <button id="nextBtn" onclick="nextLevel()">পরের লেভেল ➜</button>
+ <button onclick="startGame()">↻ আবার শুরু</button>
+</section>
 
 </div>
 
 <script>
-const canvas=document.getElementById("canvas");
-const ctx=canvas.getContext("2d");
-
-const levels=[
- {total:10,note:"জান আমাকে বাঁচাও"},
- {total:15,note:"জান তুমি পারবে"},
- {total:20,note:"জান একটু তাড়াতাড়ি আমি পারছি না"},
- {total:25,note:"জান আসো আমার কাছে"}
-];
-
-// তোমার Repository-তে থাকা ছবির নাম এখানে বসাতে পারো।
-const photoFiles=[
+/*
+ছবিগুলোর নাম GitHub-এর Files তালিকার সঙ্গে হুবহু মিলিয়ে দাও।
+নিচে দেওয়া নামগুলো তোমার আগের স্ক্রিনশট থেকে নেওয়া সম্ভাব্য নাম।
+*/
+const photos=[
  "download.jpeg",
  "download (1).jpeg",
  "download (2).jpeg",
@@ -88,42 +95,63 @@ const photoFiles=[
  "images (1).jpeg"
 ];
 
-let level=0,passed=0,frame=0;
+const levels=[
+ {count:10,note:"জান আমাকে বাঁচাও"},
+ {count:15,note:"জান তুমি পারবে"},
+ {count:20,note:"জান একটু তাড়াতাড়ি আমি পারছি না"},
+ {count:25,note:"জান আসো আমার কাছে"}
+];
+
+const $=id=>document.getElementById(id);
+const canvas=$("canvas"),ctx=canvas.getContext("2d");
+
+let level=0,passed=0,frame=0,spawn=0;
 let playerY=270,vy=0,grounded=true;
-let obstacles=[],running=false,raf=0;
-let speed=5,spawnTimer=0;
+let obstacles=[],running=false,paused=false,raf=0;
+let speed=4.5;
+
+function setPhoto(img,src){
+ img.style.display="none";
+ img.onerror=null;
+ img.onload=()=>{img.style.display="block"};
+ img.onerror=()=>{img.style.display="none"};
+ img.src=src;
+}
+
+// Home photo: first image
+setPhoto($("homePhoto"),photos[0]);
 
 function startGame(){
  cancelAnimationFrame(raf);
  level=0;
- document.getElementById("home").style.display="none";
- document.getElementById("result").style.display="none";
- document.getElementById("game").style.display="block";
+ $("home").style.display="none";
+ $("result").style.display="none";
+ $("game").style.display="block";
  beginLevel();
 }
 
 function beginLevel(){
  cancelAnimationFrame(raf);
- passed=0;frame=0;spawnTimer=0;
+ passed=0;frame=0;spawn=0;
  playerY=270;vy=0;grounded=true;
  obstacles=[];
- speed=4.5+level*.5;
- running=true;
-
- document.getElementById("game").style.display="block";
- document.getElementById("result").style.display="none";
- document.getElementById("levelName").textContent="Level "+(level+1);
+ speed=4.5+level*.45;
+ running=true;paused=false;
+ $("pauseBtn").textContent="⏸ বিরতি";
+ $("game").style.display="block";
+ $("result").style.display="none";
+ $("levelName").textContent="LEVEL "+(level+1);
  updateScore();
  raf=requestAnimationFrame(loop);
 }
 
 function updateScore(){
- document.getElementById("score").textContent=
- "বাধা পার হয়েছে: "+passed+" / "+levels[level].total;
+ $("score").textContent=
+ "বাধা: "+passed+" / "+levels[level].count;
 }
 
 function jump(){
- if(running&&grounded){
+ if(running&&!paused&&grounded){
   vy=-14;grounded=false;
  }
 }
@@ -134,121 +162,113 @@ document.addEventListener("keydown",e=>{
  }
 });
 
-function background(){
+function pauseGame(){
+ if(!running)return;
+ paused=!paused;
+ $("pauseBtn").textContent=paused?"▶ চালু":"⏸ বিরতি";
+ if(!paused)raf=requestAnimationFrame(loop);
+}
+
+function drawBackground(){
  const g=ctx.createLinearGradient(0,0,0,400);
- g.addColorStop(0,"#83dfff");
- g.addColorStop(1,"#f5d7ff");
+ g.addColorStop(0,"#82dcff");
+ g.addColorStop(1,"#f7d9ff");
  ctx.fillStyle=g;ctx.fillRect(0,0,800,400);
 
- // clouds
- ctx.fillStyle="white";
- [[100,70],[370,100],[650,60]].forEach(([x,y])=>{
+ // Clouds
+ ctx.fillStyle="#fff";
+ [[100,70],[360,95],[650,65]].forEach(([x,y])=>{
   ctx.beginPath();
-  ctx.arc(x,y,22,0,Math.PI*2);
-  ctx.arc(x+24,y-9,27,0,Math.PI*2);
-  ctx.arc(x+50,y,21,0,Math.PI*2);
+  ctx.arc(x, y, 22,0,Math.PI*2);
+  ctx.arc(x+25,y-8,27,0,Math.PI*2);
+  ctx.arc(x+51,y,21,0,Math.PI*2);
   ctx.fill();
  });
 
- // hills
- ctx.fillStyle="#8bdaa4";
- ctx.beginPath();ctx.moveTo(0,290);
- for(let x=0;x<=800;x+=50){
-  ctx.lineTo(x,255+Math.sin(x/70)*15);
+ // Hills
+ ctx.fillStyle="#91dda9";
+ ctx.beginPath();ctx.moveTo(0,300);
+ for(let x=0;x<=800;x+=40){
+  ctx.lineTo(x,260+Math.sin(x/65)*18);
  }
  ctx.lineTo(800,400);ctx.lineTo(0,400);ctx.fill();
 
- ctx.fillStyle="#57bd70";ctx.fillRect(0,330,800,70);
- ctx.fillStyle="#348a50";ctx.fillRect(0,330,800,7);
-
- for(let x=0;x<800;x+=45){
-  ctx.fillStyle="#a7ef95";
-  ctx.fillRect((x-frame*5%45+45)%800,355,20,4);
+ // Ground
+ ctx.fillStyle="#52b96d";ctx.fillRect(0,330,800,70);
+ ctx.fillStyle="#328b50";ctx.fillRect(0,330,800,7);
+ for(let x=0;x<800;x+=48){
+  ctx.fillStyle="#b8f5a0";
+  ctx.fillRect((x-frame*5%48+48)%800,355,22,4);
  }
 }
 
-function drawPlayer(x,y){
- // shadow
- ctx.fillStyle="rgba(0,0,0,.18)";
- ctx.beginPath();ctx.ellipse(x+26,333,24,6,0,0,Math.PI*2);ctx.fill();
+function drawBoy(x,y){
+ // Shadow
+ ctx.fillStyle="#0002";
+ ctx.beginPath();ctx.ellipse(x+26,334,25,6,0,0,Math.PI*2);ctx.fill();
 
- // legs
- ctx.lineCap="round";ctx.lineWidth=9;
- ctx.strokeStyle="#27365e";
+ // Legs
+ ctx.lineCap="round";ctx.lineWidth=9;ctx.strokeStyle="#29365e";
  ctx.beginPath();
- ctx.moveTo(x+20,y+52);ctx.lineTo(x+13,y+69);
- ctx.moveTo(x+34,y+52);ctx.lineTo(x+42,y+68);
+ ctx.moveTo(x+20,y+52);ctx.lineTo(x+12,y+69);
+ ctx.moveTo(x+34,y+52);ctx.lineTo(x+43,y+68);
  ctx.stroke();
 
- // shoes
- ctx.strokeStyle="#ff418d";ctx.lineWidth=8;
+ // Shoes
+ ctx.lineWidth=8;ctx.strokeStyle="#ff438f";
  ctx.beginPath();
- ctx.moveTo(x+8,y+71);ctx.lineTo(x+20,y+71);
- ctx.moveTo(x+38,y+70);ctx.lineTo(x+50,y+70);
+ ctx.moveTo(x+7,y+71);ctx.lineTo(x+20,y+71);
+ ctx.moveTo(x+39,y+70);ctx.lineTo(x+51,y+70);
  ctx.stroke();
 
- // arms
+ // Arms
  ctx.strokeStyle="#efb18d";ctx.lineWidth=8;
  ctx.beginPath();
  ctx.moveTo(x+13,y+28);ctx.lineTo(x+3,y+42);
  ctx.moveTo(x+40,y+28);ctx.lineTo(x+51,y+40);
  ctx.stroke();
 
- // shirt
- ctx.fillStyle="#6550c9";
- ctx.fillRect(x+12,y+22,29,34);
+ // Shirt
+ ctx.fillStyle="#6350c5";ctx.fillRect(x+12,y+22,29,34);
 
- // neck and face
- ctx.fillStyle="#efb18d";
- ctx.fillRect(x+23,y+15,10,10);
+ // Neck and face
+ ctx.fillStyle="#efb18d";ctx.fillRect(x+23,y+15,10,10);
  ctx.beginPath();ctx.arc(x+27,y+14,14,0,Math.PI*2);ctx.fill();
 
- // hair
- ctx.fillStyle="#332039";
- ctx.beginPath();
- ctx.arc(x+27,y+11,16,Math.PI,Math.PI*2);
- ctx.lineTo(x+43,y+15);ctx.lineTo(x+12,y+15);
- ctx.fill();
+ // Hair
+ ctx.fillStyle="#322038";
+ ctx.beginPath();ctx.arc(x+27,y+11,16,Math.PI,Math.PI*2);
+ ctx.lineTo(x+43,y+15);ctx.lineTo(x+12,y+15);ctx.fill();
  ctx.fillRect(x+14,y+5,8,10);
  ctx.fillRect(x+29,y+3,10,8);
 
- // eyes and smile
- ctx.fillStyle="#332039";
- ctx.fillRect(x+20,y+13,4,4);
- ctx.fillRect(x+31,y+13,4,4);
+ // Eyes and smile
+ ctx.fillStyle="#322038";
+ ctx.fillRect(x+20,y+13,4,4);ctx.fillRect(x+31,y+13,4,4);
  ctx.strokeStyle="#a44760";ctx.lineWidth=2;
- ctx.beginPath();
- ctx.moveTo(x+22,y+21);
- ctx.quadraticCurveTo(x+27,y+25,x+33,y+21);
- ctx.stroke();
+ ctx.beginPath();ctx.moveTo(x+22,y+21);
+ ctx.quadraticCurveTo(x+27,y+25,x+33,y+21);ctx.stroke();
 }
 
 function drawObstacle(o){
- ctx.fillStyle="#784239";
- ctx.fillRect(o.x,o.y,o.w,o.h);
- ctx.fillStyle="#c97956";
- ctx.fillRect(o.x+5,o.y+5,6,o.h-7);
- ctx.fillStyle="#ed9a72";
- ctx.fillRect(o.x,o.y,o.w,6);
+ ctx.fillStyle="#784239";ctx.fillRect(o.x,o.y,o.w,o.h);
+ ctx.fillStyle="#c97956";ctx.fillRect(o.x+5,o.y+5,6,o.h-7);
+ ctx.fillStyle="#ef9a73";ctx.fillRect(o.x,o.y,o.w,6);
 }
 
 function loop(){
- if(!running)return;
+ if(!running||paused)return;
  frame++;
- background();
+ drawBackground();
 
- // player physics
- vy+=0.65;playerY+=vy;
- if(playerY>=270){
-  playerY=270;vy=0;grounded=true;
- }
- drawPlayer(100,playerY);
+ vy+=.65;playerY+=vy;
+ if(playerY>=270){playerY=270;vy=0;grounded=true}
+ drawBoy(100,playerY);
 
- // obstacle spacing
- spawnTimer++;
- const gap=Math.max(75,110-level*7);
- if(spawnTimer>=gap){
-  spawnTimer=0;
+ spawn++;
+ const gap=Math.max(75,108-level*5);
+ if(spawn>=gap){
+  spawn=0;
   obstacles.push({x:820,y:288,w:28,h:42,done:false});
  }
 
@@ -256,99 +276,71 @@ function loop(){
   o.x-=speed;
   drawObstacle(o);
 
-  // collision
+  // Collision check
   if(o.x<143&&o.x+o.w>100&&playerY+72>o.y+4){
-   if(playerY>o.y-65){
-    endGame(false);return;
-   }
+   if(playerY>o.y-65){finish(false);return}
   }
 
   if(!o.done&&o.x+o.w<100){
    o.done=true;passed++;updateScore();
-   if(passed>=levels[level].total){
-    endGame(true);return;
-   }
+   if(passed>=levels[level].count){finish(true);return}
   }
  }
  obstacles=obstacles.filter(o=>o.x>-60);
 
- // HUD
- ctx.fillStyle="rgba(44,29,75,.8)";
- ctx.fillRect(12,12,190,36);
- ctx.fillStyle="white";ctx.font="bold 18px Arial";
- ctx.fillText("❤️ LOVE RUN",24,36);
-
+ ctx.fillStyle="#38234fdd";ctx.fillRect(12,12,195,38);
+ ctx.fillStyle="#fff";ctx.font="bold 18px Arial";
+ ctx.fillText("❤️ LOVE RUN",24,37);
  raf=requestAnimationFrame(loop);
 }
 
-function showPhoto(){
- const img=document.getElementById("gfPhoto");
- img.style.display="none";
- img.onerror=()=>{img.style.display="none"};
- img.onload=()=>{img.style.display="block"};
-
- // প্রথমে পরিচিত GF ছবির নামগুলো চেষ্টা করা হবে।
- let i=0;
- function tryNext(){
-  if(i>=photoFiles.length){
-   img.onerror=null;img.onload=null;
-   img.style.display="none";
-   return;
-  }
-  img.src=photoFiles[i++];
- }
- img.onerror=tryNext;
- tryNext();
-}
-
-function endGame(won){
- running=false;cancelAnimationFrame(raf);
- document.getElementById("game").style.display="none";
- document.getElementById("result").style.display="block";
-
- const img=document.getElementById("gfPhoto");
- img.style.display="none";
- document.getElementById("loveNotes").innerHTML="";
+function finish(won){
+ running=false;paused=false;cancelAnimationFrame(raf);
+ $("game").style.display="none";
+ $("result").style.display="block";
+ $("notes").innerHTML="";
+ $("resultPhoto").style.display="none";
 
  if(!won){
-  document.getElementById("heart").textContent="💪";
-  document.getElementById("resultTitle").textContent="আবার চেষ্টা করো!";
-  document.getElementById("resultText").textContent=
-   "বাধায় ধাক্কা লেগেছে। লাফ দেওয়ার সময় ঠিক করো, তুমি পারবে!";
-  document.getElementById("nextBtn").textContent="আবার চেষ্টা করো";
+  $("resultHeart").textContent="💪";
+  $("resultTitle").textContent="আবার চেষ্টা করো!";
+  $("resultText").textContent="বাধায় ধাক্কা লেগেছে। তুমি আবার চেষ্টা করতে পারবে!";
+  $("nextBtn").textContent="আবার চেষ্টা করো";
   return;
  }
 
- document.getElementById("heart").textContent="💖";
- document.getElementById("resultTitle").textContent=
-  level===3?"সব লেভেল সম্পূর্ণ! ❤️":"Level "+(level+1)+" Completed!";
- document.getElementById("resultText").textContent=levels[level].note;
+ $("resultHeart").textContent="💖";
+ $("resultTitle").textContent="LEVEL "+(level+1)+" COMPLETED!";
+ $("resultText").textContent=levels[level].note;
+
+ // One unique picture after each level.
+ // Level 1 -> photos[1], Level 2 -> photos[2], etc.
+ setPhoto($("resultPhoto"),photos[level+1]);
 
  if(level===3){
-  showPhoto();
-  document.getElementById("loveNotes").innerHTML=
+  $("resultTitle").textContent="তুমি তোমার ভালোবাসাকে বাঁচিয়েছো! ❤️";
+  $("resultText").textContent="চারটি লেভেল শেষ! তোমাদের ভালোবাসার জয় হয়েছে।";
+  $("notes").innerHTML=
    "<p>জান, সব বাধা পেরিয়ে তোমার কাছে এলাম। ❤️</p>"+
    "<p>তোমার হাসি আমার সবচেয়ে বড় সুখ। 💕</p>"+
-   "<p>তুমি পাশে থাকলে সব বাধা পার হতে পারব। 🌹</p>"+
+   "<p>তুমি পাশে থাকলে সব বাধা পার হব। 🌹</p>"+
    "<p>আমার গল্পের সবচেয়ে সুন্দর মানুষটা তুমি। 💗</p>";
-  document.getElementById("nextBtn").textContent="❤️ আবার শুরু";
+  $("nextBtn").textContent="💖 আবার শুরু";
  }else{
-  document.getElementById("nextBtn").textContent="পরের লেভেল ➜";
+  $("nextBtn").textContent="পরের লেভেল ➜";
  }
 }
 
 function nextLevel(){
- if(!running&&document.getElementById("result").style.display==="block"){
-  if(passed<levels[level].total){
-   beginLevel();return;
-  }
-  if(level>=3){
-   startGame();return;
-  }
+ if(level>=3){startGame();return}
+ if(passed>=levels[level].count){
   level++;beginLevel();
+ }else{
+  // Failed run: retry the same level.
+  beginLevel();
  }
 }
 </script>
 </body>
-    </html>
+ </html>
  
