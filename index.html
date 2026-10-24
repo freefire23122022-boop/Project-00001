@@ -25,7 +25,7 @@ button{
 button:active{transform:translateY(3px);box-shadow:none}
 .panel{padding:14px 6px}
 #homePhoto{
- width:100%;max-width:440px;max-height:390px;
+ width:100%;max-width:400px;max-height:300px;
  object-fit:contain;border-radius:20px;
  border:3px solid #ff8fc7;box-shadow:0 0 25px #ff438f55
 }
@@ -62,7 +62,7 @@ canvas{display:block;width:100%;height:auto;touch-action:manipulation}
  <h2 id="levelName">LEVEL 1</h2>
  <p id="score">বাধা: 0 /  7</p>
  <div id="stage">
-  <canvas id="canvas" width="800" height="400"></canvas>
+  <canvas id="canvas" width="800" height="600"></canvas>
  </div>
  <p class="small">শালা চুদির ভাই তাড়াতাড়ি কর জনিসিং আসছে।</p>
  <button onclick="jump()">⬆ তাড়াতাড়ি</button>
@@ -136,7 +136,7 @@ function beginLevel(){
  obstacles=[];
  speed=4.5+level*.45;
  running=true;paused=false;
- $("pauseBtn").textContent="⏸ বিরতি";
+ $("pauseBtn").textContent="⏸ আমারটা দুর্বল";
  $("game").style.display="block";
  $("result").style.display="none";
  $("levelName").textContent="LEVEL "+(level+1);
@@ -164,7 +164,7 @@ document.addEventListener("keydown",e=>{
 function pauseGame(){
  if(!running)return;
  paused=!paused;
- $("pauseBtn").textContent=paused?"▶ চালু":"⏸ বিরতি";
+ $("pauseBtn").textContent=paused?"▶ চালু":"⏸ আমারটা দুর্বল";
  if(!paused)raf=requestAnimationFrame(loop);
 }
 
@@ -190,7 +190,7 @@ function drawBackground(){
  for(let x=0;x<=800;x+=40){
   ctx.lineTo(x,260+Math.sin(x/65)*18);
  }
- ctx.lineTo(800,400);ctx.lineTo(0,400);ctx.fill();
+ ctx.lineTo(800,600);ctx.lineTo(0,400);ctx.fill();
 
  // Ground
  ctx.fillStyle="#52b96d";ctx.fillRect(0,330,800,70);
@@ -303,8 +303,8 @@ function finish(won){
  if(!won){
   $("resultHeart").textContent="💪";
   $("resultTitle").textContent="আবার চেষ্টা করো!";
-  $("resultText").textContent="বাধায় ধাক্কা লেগেছে। তুমি আবার চেষ্টা করতে পারবে!";
-  $("nextBtn").textContent="আবার চেষ্টা করো";
+  $("resultText").textContent="কানা চোদা আবার চেষ্টা কর শালা!";
+  $("nextBtn").textContent="আবার চেষ্টা কর";
   return;
  }
 
